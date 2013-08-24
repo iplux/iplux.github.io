@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[IPLux]]></title>
-  <link href="http://iplux.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: sysadmin | IPLux]]></title>
+  <link href="http://iplux.github.io/blog/categories/sysadmin/atom.xml" rel="self"/>
   <link href="http://iplux.github.io/"/>
   <updated>2013-08-24T13:13:58+02:00</updated>
   <id>http://iplux.github.io/</id>
@@ -20,17 +20,16 @@
     <id>http://iplux.github.io/blog/2013/08/23/blocking-dns-amplification-attacks</id>
     <content type="html"><![CDATA[<p>You wake up one normal day and your monitoring system shows a graph like this for the number of queries answered by your DNS server:</p>
 
-<p><img src="http://iplux.github.io/images/iplux/dnsreqs.png"></p>
+<p><img src="/images/iplux/dnsreqs.png"></p>
 
 <p>Your DNS is usually used only by a couple of machines.
 What is happening?</p>
 
 <p>The best way to start troubleshooting is using the command <a href="http://dns.measurement-factory.com/tools/dnstop/">dnstop</a>.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>dnstop -4 eth0
-</span></code></pre></td></tr></table></div></figure>
-
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>You will see immediately a list of the source IP that are doing the most queries to your DNS.</p>
 
@@ -60,10 +59,9 @@ What is happening?</p>
 </ul>
 
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>iptables -A INPUT -p udp -m string —hex-string “|03697363036f726700|” —algo bm —to 65535 -j DROP
-</span></code></pre></td></tr></table></div></figure>
-
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>The command will check the content of udp packets for the hex-string that represents isc.org</p>
 
@@ -72,19 +70,17 @@ What is happening?</p>
 </ul>
 
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">server</span><span class="o">=</span>/isc.org/10.0.0.1
-</span></code></pre></td></tr></table></div></figure>
-
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>where 10.0.0.1 is an IP that is not part of your network and does not run a dns server.</p>
 
 <p>To be extra sure also null-route the IP address:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>route add 10.0.0.1 gw 127.0.0.1 lo
-</span></code></pre></td></tr></table></div></figure>
-
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>The result is that all requests for the domain name isc.org will be forwarded to a non-existent address and the attacker will never receive a reply.</p>
 
@@ -93,32 +89,33 @@ What is happening?</p>
 </ul>
 
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>iptables -A INPUT -p udp -m udp --dport 53 -m limit --limit 5/sec -j LOG --log-prefix <span class="s2">&quot;fw-dns &quot;</span> --log-level 7
-</span></code></pre></td></tr></table></div></figure>
-
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>iptables -A INPUT -p udp -m udp &amp;mdash;dport 53 -m limit &amp;mdash;limit 5/sec -j LOG &amp;mdash;log-prefix &amp;ldquo;fw-dns &amp;rdquo; &amp;mdash;log-level 7
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>This generates a log message like the following:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>Aug 24 06:34:02 aragorn kernel: <span class="o">[</span>2582889.374570<span class="o">]</span> fw-dns <span class="nv">IN</span><span class="o">=</span>venet0 <span class="nv">OUT</span><span class="o">=</span> <span class="nv">MAC</span><span class="o">=</span> <span class="nv">SRC</span><span class="o">=</span>attacker.ip <span class="nv">DST</span><span class="o">=</span>your.ip <span class="nv">LEN</span><span class="o">=</span>64 <span class="nv">TOS</span><span class="o">=</span>0x00 <span class="nv">PREC</span><span class="o">=</span>0x00 <span class="nv">TTL</span><span class="o">=</span>110 <span class="nv">ID</span><span class="o">=</span>49937 <span class="nv">PROTO</span><span class="o">=</span>UDP <span class="nv">SPT</span><span class="o">=</span>43523 <span class="nv">DPT</span><span class="o">=</span>53 <span class="nv">LEN</span><span class="o">=</span>44
-</span></code></pre></td></tr></table></div></figure>
-
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>Create the file /etc/fail2ban/filter.d/iptables-dns.conf:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>Definition<span class="o">]</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>Definition<span class="o">]</span>&lt;/p&gt;
 </span><span class='line'>
-</span><span class='line'><span class="nv">failregex</span> <span class="o">=</span> fw-dns.*SRC<span class="o">=</span>&lt;HOST&gt; DST
-</span></code></pre></td></tr></table></div></figure>
-
+</span><span class='line'>&lt;p&gt;failregex <span class="o">=</span> fw-dns.*SRC<span class="o">=</span>&lt;HOST&gt; DST&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>and add the following to jail.conf to ban the IP for 1 day.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -127,17 +124,20 @@ What is happening?</p>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>iptables-dns<span class="o">]</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;<span class="o">[</span>iptables-dns<span class="o">]</span>
 </span><span class='line'><span class="nv">enabled</span> <span class="o">=</span> <span class="nb">true</span>
 </span><span class='line'><span class="nv">ignoreip</span> <span class="o">=</span> 127.0.0.1
 </span><span class='line'><span class="nv">filter</span> <span class="o">=</span> iptables-dns
-</span><span class='line'><span class="nv">action</span> <span class="o">=</span> iptables-multiport<span class="o">[</span><span class="nv">name</span><span class="o">=</span>iptables-dns, <span class="nv">port</span><span class="o">=</span><span class="s2">&quot;53&quot;</span>, <span class="nv">protocol</span><span class="o">=</span>udp<span class="o">]</span>
+</span><span class='line'><span class="nv">action</span> <span class="o">=</span> iptables-multiport<span class="o">[</span><span class="nv">name</span><span class="o">=</span>iptables-dns, <span class="nv">port</span><span class="o">=</span>&amp;ldquo;53&amp;rdquo;, <span class="nv">protocol</span><span class="o">=</span>udp<span class="o">]</span>
 </span><span class='line'><span class="nv">logpath</span> <span class="o">=</span> /var/log/iptables/dns_reqs.log
 </span><span class='line'><span class="nv">bantime</span> <span class="o">=</span> 86400
 </span><span class='line'><span class="nv">findtime</span> <span class="o">=</span> 120
 </span><span class='line'><span class="nv">maxretry</span> <span class="o">=</span> 1
-</span></code></pre></td></tr></table></div></figure>
-
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>Do you have other suggestions to block dns amplification attacks? Alas compared to an open mail relay, sometimes there are reasons to have an open dns resolver on Internet so we will have to deal with this problem for a while.</p>
 ]]></content>
