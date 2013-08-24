@@ -1,19 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://iplux.github.io/blog/2013/08/23/blocking-dns-amplification-attacks/</loc>
+        <loc>http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks/</loc>
         <lastmod>2013-08-24T13:13:57+02:00</lastmod>
     </url>
     <url>
-        <loc>http://iplux.github.io/blog/archives/</loc>
+        <loc>http://www.iplux.net/blog/archives/</loc>
         <lastmod>2013-08-24T13:13:57+02:00</lastmod>
     </url>
     <url>
-        <loc>http://iplux.github.io/</loc>
+        <loc>http://www.iplux.net/</loc>
         <lastmod>2013-08-24T13:13:57+02:00</lastmod>
     </url>
     <url>
-        <loc>http://iplux.github.io/robots.txt</loc>
+        <loc>http://www.iplux.net/robots.txt</loc>
         <lastmod>2013-08-22T11:15:45+02:00</lastmod>
     </url>
 </urlset>

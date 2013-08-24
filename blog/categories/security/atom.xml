@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: security | IPLux]]></title>
-  <link href="http://iplux.github.io/blog/categories/security/atom.xml" rel="self"/>
-  <link href="http://iplux.github.io/"/>
-  <updated>2013-08-24T13:21:11+02:00</updated>
-  <id>http://iplux.github.io/</id>
+  <title><![CDATA[Category: security | ipLux]]></title>
+  <link href="http://www.iplux.net/blog/categories/security/atom.xml" rel="self"/>
+  <link href="http://www.iplux.net/"/>
+  <updated>2013-08-24T13:22:51+02:00</updated>
+  <id>http://www.iplux.net/</id>
   <author>
     <name><![CDATA[Matteo Castelli]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Blocking DNS Amplification attacks]]></title>
-    <link href="http://iplux.github.io/blog/2013/08/23/blocking-dns-amplification-attacks/"/>
+    <link href="http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks/"/>
     <updated>2013-08-23T16:58:00+02:00</updated>
-    <id>http://iplux.github.io/blog/2013/08/23/blocking-dns-amplification-attacks</id>
+    <id>http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks</id>
     <content type="html"><![CDATA[<p>You wake up one normal day and your monitoring system shows a graph like this for the number of queries answered by your DNS server:</p>
 
 <p><img src="/images/iplux/dnsreqs.png"></p>
