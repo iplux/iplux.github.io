@@ -3,7 +3,9 @@ layout: post
 title: "Blocking DNS Amplification attacks"
 date: 2013-08-23 16:58
 comments: true
+keywords: dns, security, attack, dos, ddos, network
 categories: sysadmin security
+description: How to fight against DNS Amplification attacks
 ---
 
 You wake up one normal day and your monitoring system shows a graph like this for the number of queries answered by your DNS server:
