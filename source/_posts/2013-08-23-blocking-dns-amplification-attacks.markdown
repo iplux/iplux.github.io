@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Blocking DNS Amplification attacks"
+title: "★ Blocking DNS Amplification attacks"
 date: 2013-08-23 16:58
 comments: true
 keywords: dns, security, attack, dos, ddos, network
