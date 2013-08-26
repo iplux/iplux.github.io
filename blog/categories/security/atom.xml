@@ -4,7 +4,7 @@
   <title><![CDATA[Category: security | ipLux]]></title>
   <link href="http://www.iplux.net/blog/categories/security/atom.xml" rel="self"/>
   <link href="http://www.iplux.net/"/>
-  <updated>2013-08-26T11:54:24+02:00</updated>
+  <updated>2013-08-26T12:08:00+02:00</updated>
   <id>http://www.iplux.net/</id>
   <author>
     <name><![CDATA[Matteo Castelli]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Blocking DNS Amplification attacks]]></title>
+    <title type="html"><![CDATA[★ Blocking DNS Amplification attacks]]></title>
     <link href="http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks/"/>
     <updated>2013-08-23T16:58:00+02:00</updated>
     <id>http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks</id>
