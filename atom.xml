@@ -4,7 +4,7 @@
   <title><![CDATA[ipLux]]></title>
   <link href="http://www.iplux.net/atom.xml" rel="self"/>
   <link href="http://www.iplux.net/"/>
-  <updated>2013-08-26T16:36:32+02:00</updated>
+  <updated>2013-08-30T21:01:13+02:00</updated>
   <id>http://www.iplux.net/</id>
   <author>
     <name><![CDATA[Matteo Castelli]]></name>
@@ -12,6 +12,150 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[★ Radius/Tacacs configuration for network devices]]></title>
+    <link href="http://www.iplux.net/blog/2013/08/28/radius-slash-tacacs-configuration-for-network-devices/"/>
+    <updated>2013-08-28T10:43:00+02:00</updated>
+    <id>http://www.iplux.net/blog/2013/08/28/radius-slash-tacacs-configuration-for-network-devices</id>
+    <content type="html"><![CDATA[<p>Most network devices support external authentications via the <a href="http://en.wikipedia.org/wiki/RADIUS">radius</a> protocol and/or <a href="http://en.wikipedia.org/wiki/TACACS">TACACS</a>. The two protocols have some <a href="http://www.cisco.com/en/US/tech/tk59/technologies_tech_note09186a0080094e99.shtml">differences</a> but the concepts are the same, so for the rest of article I will focus mainly on using radius.</p>
+
+<p>This configuration is extremely useful to centralize all your users in a common directory system (ldap, active directory, etc&hellip;).
+You usually do not want to change your passwords in hundredth of cisco switches because one of your employees leaves&hellip;</p>
+
+<p>The standard solution for Cisco Devices is <a href="http://www.cisco.com/en/US/products/ps9911/index.html">Cisco ACS</a>, but to make things more interesting (and cheaper!), I will describe how to implement radius authentication using a Radius Server under Linux.</p>
+
+<p>What you need:</p>
+
+<ul>
+<li>a Linux server (a low resource VPS is enough)</li>
+<li><a href="http://www.open.com.au/radiator/">Radiator Radius server</a></li>
+<li>an OpenLDAP server</li>
+</ul>
+
+
+<p>The installation of radiator is very easy:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>tar xzvf Radiator-LASTVERSION.tgz <span class="o">&amp;&amp;</span>  <span class="nb">cd </span>Radiator-LASTVERSION
+</span><span class='line'>perl Makefile.PL <span class="o">&amp;&amp;</span> make <span class="o">&amp;&amp;</span> make <span class="nb">test</span> <span class="o">&amp;&amp;</span> sudo make install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now let&rsquo;s have a look at the radius.cfg file:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># All the devices have the same password</span>
+</span><span class='line'>&lt;Client DEFAULT&gt;
+</span><span class='line'>  Secret YOURSECRET
+</span><span class='line'>  TACACSPLUSKey YOURSECRET
+</span><span class='line'>&lt;/Client&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;ServerTACACSPLUS&gt;
+</span><span class='line'>  Key YOURSECRET
+</span><span class='line'>&lt;/ServerTACACSPLUS&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;Realm /ldap/&gt;
+</span><span class='line'>  RejectHasReason
+</span><span class='line'>  
+</span><span class='line'>  PostAuthHook file:<span class="s2">&quot;postauthhook.pl&quot;</span>
+</span><span class='line'>              
+</span><span class='line'>  &lt;AuthBy INTERNAL&gt;
+</span><span class='line'>      AcctHook file:<span class="s2">&quot;accthook.pl&quot;</span>
+</span><span class='line'>  &lt;/AuthBy&gt;
+</span><span class='line'>  
+</span><span class='line'>  &lt;AuthBy LDAP2&gt;
+</span><span class='line'>      ServerChecksPassword
+</span><span class='line'>      Host            YOURLDAPSERVER
+</span><span class='line'>      BaseDN          <span class="nv">o</span><span class="o">=</span>YOURBASEDN
+</span><span class='line'>      UsernameAttr    uid
+</span><span class='line'>      PasswordAttr    userPassword
+</span><span class='line'>      SearchFilter    <span class="o">(</span>&amp;<span class="o">(</span>|<span class="o">(</span><span class="nv">privilegedUser</span><span class="o">=</span>*<span class="o">))(</span>%0<span class="o">=</span>%1<span class="o">))</span>
+</span><span class='line'>  
+</span><span class='line'>      PostSearchHook file:<span class="s2">&quot;postsearchhook.pl&quot;</span>
+</span><span class='line'>      HoldServerConnection
+</span><span class='line'>      
+</span><span class='line'>  &lt;/AuthBy&gt;
+</span><span class='line'>&lt;/Realm&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s analyze the configuration in detail:</p>
+
+<ul>
+<li>we use the secret key YOURSECRET. You will need to configure the same key in all your network devices. For additional security, you could change the secret key per device and add a certain number of Client clause to map IPs to secret keys (eventually it is possible to store these values as well in a database&hellip;)</li>
+<li>we will accept both Radius and Tacacs+ connections (remember to open your firewall!)</li>
+<li>the realm is ldap so if your login is USERNAME, you will have to enter it like USERNAME@ldap</li>
+<li>the AuthBy LDAP clause contains all the informations needed for authenticating against the ldap server. You will have to fill them based on your ldap schema.</li>
+</ul>
+
+
+<p>What about the perl script that are executed in the different hooks?</p>
+
+<ul>
+<li><p>postauth.pl: this hook is executed after the authentication is validated. This could be useful to add logging about what has happened during the authentication (e.g: which user has authenticated, their IP address etc&hellip;)</p></li>
+<li><p>accthook.pl: this hook is useful for <a href="http://www.cisco.com/en/US/docs/ios/12_2/security/configuration/guide/scfacct.html#wp1001268">devices</a> that support logging of executed commands via accounting packets. You can then logs in your favorite way (file, syslog server, database) all the commands executed (and by whom)</p></li>
+<li><p>postsearchhook.pl: this is the main script for managing authorization. After we have validated username and password, we could still need to validate additional authorizations like:</p>
+
+<ul>
+<li>does the user have access to this particular device?</li>
+<li>does the user have administrative access to the device? (in Cisco terms, can it execute the &ldquo;enable&rdquo; command)</li>
+</ul>
+</li>
+</ul>
+
+
+<p>For example, the code to make the user escalate to level 15 in a Cisco router could be the following:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">if</span> <span class="o">(</span><span class="nv">$isUserAdmin</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nv">$_</span><span class="o">[</span>3<span class="o">]</span>-&gt;get_reply-&gt;add_attr<span class="o">(</span><span class="s1">&#39;cisco-avpair&#39;</span>, <span class="s2">&quot;shell:priv-lvl=15&quot;</span><span class="o">)</span>;
+</span><span class='line'>            <span class="nv">$_</span><span class="o">[</span>3<span class="o">]</span>-&gt;get_reply-&gt;add_attr<span class="o">(</span><span class="s1">&#39;Service-Type&#39;</span>, <span class="s1">&#39;Administrative-User&#39;</span><span class="o">)</span>;
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Radius support is quite wide-spread in network devices, but sometimes it can be buggy or non-standard.
+A good documentation covering which attributes need to be sent to different devices can be found at the FreeRadius Wiki (<a href="http://wiki.freeradius.org/vendor/HP">hp</a>, <a href="http://wiki.freeradius.org/vendor/Cisco">cisco</a>)</p>
+
+<p>Which radius server and authentication mechanism do you use in production?</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[★ Blocking DNS Amplification attacks]]></title>

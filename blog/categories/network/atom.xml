@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: sysadmin | ipLux]]></title>
-  <link href="http://www.iplux.net/blog/categories/sysadmin/atom.xml" rel="self"/>
+  <title><![CDATA[Category: network | ipLux]]></title>
+  <link href="http://www.iplux.net/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://www.iplux.net/"/>
   <updated>2013-08-30T21:01:13+02:00</updated>
   <id>http://www.iplux.net/</id>
@@ -189,136 +189,6 @@ You usually do not want to change your passwords in hundredth of cisco switches 
 A good documentation covering which attributes need to be sent to different devices can be found at the FreeRadius Wiki (<a href="http://wiki.freeradius.org/vendor/HP">hp</a>, <a href="http://wiki.freeradius.org/vendor/Cisco">cisco</a>)</p>
 
 <p>Which radius server and authentication mechanism do you use in production?</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[★ Blocking DNS Amplification attacks]]></title>
-    <link href="http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks/"/>
-    <updated>2013-08-23T16:58:00+02:00</updated>
-    <id>http://www.iplux.net/blog/2013/08/23/blocking-dns-amplification-attacks</id>
-    <content type="html"><![CDATA[<p>You wake up one normal day and your monitoring system shows a graph like this for the number of queries answered by your DNS server:</p>
-
-<p><img src="/images/iplux/dnsreqs.png"></p>
-
-<p>Your DNS is usually used only by a couple of machines.
-What is happening?</p>
-
-<p>The best way to start troubleshooting is using the command <a href="http://dns.measurement-factory.com/tools/dnstop/">dnstop</a>.</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>dnstop -4 eth0
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>You will see immediately a list of the source IP that are doing the most queries to your DNS.</p>
-
-<p>But what are they requesting? Just press ‘2’ and find out. You will see the domain names and the number of hits.</p>
-
-<p>You have good chances that you will see one of the following domain names:</p>
-
-<ul>
-<li>isc.org</li>
-<li>ripe.net</li>
-</ul>
-
-
-<p><em>Congratulations</em>! You are victim of a <a href="https://www.riskanalytics.com/2013/05/23/dns-amplification-attacks/">DNS amplification attack</a>.</p>
-
-<p>In a few words, the bad guys spoof their IP addresses to the one of the victim they want to attack and then they use your recursive DNS server to query domain names.</p>
-
-<p>The result is that (thanks UDP!) the attackers is sending small UDP packets with the request and your DNS server is answering with DNS replies that can be many times bigger than the original packet. This replies are sent back to the spoofed IP address and your DNS is now part of a army of DOSsers to the victim.</p>
-
-<p>What can you to do to avoid this problem?</p>
-
-<p>You have different possibilities:</p>
-
-<ul>
-<li><p>Stop running a open recursive DNS server on Internet. There are very few reasons for having an open recursive DNS (normally only your authoritative DNS server should be available for the whole internet)</p></li>
-<li><p>Use the string module of iptables to block all packets that contain isc.org and ripe.</p></li>
-</ul>
-
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>iptables -A INPUT -p udp -m string —hex-string “|03697363036f726700|” —algo bm —to 65535 -j DROP
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>The command will check the content of udp packets for the hex-string that represents isc.org</p>
-
-<ul>
-<li>you can create some tricks on your dns server to avoid answering specific domain names. For example on dnsmasq (typical in many home routers), you could configure it with the following:</li>
-</ul>
-
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">server</span><span class="o">=</span>/isc.org/10.0.0.1
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>where 10.0.0.1 is an IP that is not part of your network and does not run a dns server.</p>
-
-<p>To be extra sure also null-route the IP address:</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>route add 10.0.0.1 gw 127.0.0.1 lo
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>The result is that all requests for the domain name isc.org will be forwarded to a non-existent address and the attacker will never receive a reply.</p>
-
-<ul>
-<li>finally, you could also configure <a href="http://www.fail2ban.org/wiki/index.php/Main_Page">fail2ban</a> to block IPs that produce a high number of DNS requests (be careful not to block valid traffic!). To do this, you can create a log message when the amounts of dns requests are higher than a certain threshold:</li>
-</ul>
-
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>iptables -A INPUT -p udp -m udp &amp;mdash;dport 53 -m limit &amp;mdash;limit 5/sec -j LOG &amp;mdash;log-prefix &amp;ldquo;fw-dns &amp;rdquo; &amp;mdash;log-level 7
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>This generates a log message like the following:</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>Aug 24 06:34:02 aragorn kernel: <span class="o">[</span>2582889.374570<span class="o">]</span> fw-dns <span class="nv">IN</span><span class="o">=</span>venet0 <span class="nv">OUT</span><span class="o">=</span> <span class="nv">MAC</span><span class="o">=</span> <span class="nv">SRC</span><span class="o">=</span>attacker.ip <span class="nv">DST</span><span class="o">=</span>your.ip <span class="nv">LEN</span><span class="o">=</span>64 <span class="nv">TOS</span><span class="o">=</span>0x00 <span class="nv">PREC</span><span class="o">=</span>0x00 <span class="nv">TTL</span><span class="o">=</span>110 <span class="nv">ID</span><span class="o">=</span>49937 <span class="nv">PROTO</span><span class="o">=</span>UDP <span class="nv">SPT</span><span class="o">=</span>43523 <span class="nv">DPT</span><span class="o">=</span>53 <span class="nv">LEN</span><span class="o">=</span>44
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>Create the file /etc/fail2ban/filter.d/iptables-dns.conf:</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">[</span>Definition<span class="o">]</span>&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;failregex <span class="o">=</span> fw-dns.*SRC<span class="o">=</span>&lt;HOST&gt; DST&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>and add the following to jail.conf to ban the IP for 1 day.</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;<span class="o">[</span>iptables-dns<span class="o">]</span>
-</span><span class='line'><span class="nv">enabled</span> <span class="o">=</span> <span class="nb">true</span>
-</span><span class='line'><span class="nv">ignoreip</span> <span class="o">=</span> 127.0.0.1
-</span><span class='line'><span class="nv">filter</span> <span class="o">=</span> iptables-dns
-</span><span class='line'><span class="nv">action</span> <span class="o">=</span> iptables-multiport<span class="o">[</span><span class="nv">name</span><span class="o">=</span>iptables-dns, <span class="nv">port</span><span class="o">=</span>&amp;ldquo;53&amp;rdquo;, <span class="nv">protocol</span><span class="o">=</span>udp<span class="o">]</span>
-</span><span class='line'><span class="nv">logpath</span> <span class="o">=</span> /var/log/iptables/dns_reqs.log
-</span><span class='line'><span class="nv">bantime</span> <span class="o">=</span> 86400
-</span><span class='line'><span class="nv">findtime</span> <span class="o">=</span> 120
-</span><span class='line'><span class="nv">maxretry</span> <span class="o">=</span> 1
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>Do you have other suggestions to block dns amplification attacks? Alas compared to an open mail relay, sometimes there are reasons to have an open dns resolver on Internet so we will have to deal with this problem for a while.</p>
 ]]></content>
   </entry>
   
